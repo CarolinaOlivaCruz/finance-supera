@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import './App.css';
 
 const listTransaction = [
   {
@@ -35,47 +36,64 @@ function App() {
       [event.target.name]: event.target.value,
     });
   };
-  console.log(searchValues);
+
   return (
     <div className="App">
-      <div>
-        <label>
+      <div className="search-container">
+        <label className="search-label">
           Data de início:
-          <input type="date" name="startDate" onChange={handleInputChange} />
+          <input
+            type="date"
+            name="startDate"
+            onChange={handleInputChange}
+            className="search-input"
+          />
         </label>
-        <label>
+        <label className="search-label">
           Data de fim:
-          <input type="date" name="endDate" onChange={handleInputChange} />
+          <input
+            type="date"
+            name="endDate"
+            onChange={handleInputChange}
+            className="search-input"
+          />
         </label>
-        <label>
-          Nome do operador transacionado
-          <input type="text" name="operatorName" onChange={handleInputChange} />
+        <label className="search-label">
+          Nome do operador transacionado:
+          <input
+            type="text"
+            name="operatorName"
+            onChange={handleInputChange}
+            className="search-input"
+          />
         </label>
       </div>
       <div>
-        <button>Pesquisar</button>
+        <button className="search-button">Pesquisar</button>
       </div>
       <div>
-        <div>
+        <div className="container-balance">
           <p>Saldo total R$ 00,00</p>
           <p>Saldo no período R$ 00,00</p>
         </div>
-        <table>
+        <table className="transaction-table">
           <thead>
             <tr>
-              <th>Dados</th>
-              <th>Valencia</th>
-              <th>Tipo</th>
-              <th>Nome do operador transacionado</th>
+              <th className="table-header">Dados</th>
+              <th className="table-header">Valencia</th>
+              <th className="table-header">Tipo</th>
+              <th className="table-header">Nome do operador transacionado</th>
             </tr>
           </thead>
           <tbody>
             {listTransaction.map((transaction, index) => (
               <tr key={index}>
-                <td>{formatDate(transaction.dados)}</td>
-                <td>R$ {transaction.valencia}</td>
-                <td>{transaction.tipo}</td>
-                <td>{transaction.operador ? transaction.operador : ""}</td>
+                <td className="table-data">{formatDate(transaction.dados)}</td>
+                <td className="table-data">R$ {transaction.valencia}</td>
+                <td className="table-data">{transaction.tipo}</td>
+                <td className="table-data">
+                  {transaction.operador ? transaction.operador : ""}
+                </td>
               </tr>
             ))}
           </tbody>
