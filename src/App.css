@@ -68,6 +68,12 @@
   text-align: left;
 }
 
+.no-transactions {
+  font-size: 20px;
+  text-align: center;
+  padding: 20px 0;
+}
+
 .table-data {
   padding: 10px;
   border-bottom: 1px solid #ccc;

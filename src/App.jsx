@@ -6,7 +6,7 @@ function App() {
   const [transactionList, setTransactionList] = useState([]);
   const [searchValues, setSearchValues] = useState({
     dateMin: "",
-    endDate: "",
+    dateMax: "",
     operator: "",
   });
 
@@ -36,15 +36,15 @@ function App() {
 
   const handleSearchClick = async () => {
     try {
-      const { dateMin, endDate, operator } = searchValues;
+      const { dateMin, dateMax, operator } = searchValues;
 
       const formattedDateMin = dateMin ? formatDate(dateMin) : "";
-      const formattedEndDate = endDate ? formatDate(endDate) : "";
+      const formattedDateMax = dateMax ? formatDate(dateMax) : "";
 
       const params = {
         operator: operator,
         dateMin: formattedDateMin,
-        dateMax: formattedEndDate,
+        dateMax: formattedDateMax,
       };
 
       const response = await API.get("/transfers", { params });
@@ -104,18 +104,28 @@ function App() {
               <th className="table-header">Nome do operador transacionado</th>
             </tr>
           </thead>
-          <tbody>
-            {transactionList.map((transaction, index) => (
-              <tr key={index}>
-                <td className="table-data">{formatDate(transaction.dateAt)}</td>
-                <td className="table-data">R$ {transaction.value}</td>
-                <td className="table-data">{transaction.accountType}</td>
-                <td className="table-data">
-                  {transaction.operator?.toString()}
-                </td>
+          {transactionList.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan="4" className="no-transactions">Nenhuma transação encontrada.</td>
               </tr>
-            ))}
-          </tbody>
+            </tbody>
+          ) : (
+            <tbody>
+              {transactionList.map((transaction, index) => (
+                <tr key={index}>
+                  <td className="table-data">
+                    {formatDate(transaction.dateAt)}
+                  </td>
+                  <td className="table-data">R$ {transaction.value}</td>
+                  <td className="table-data">{transaction.accountType}</td>
+                  <td className="table-data">
+                    {transaction.operator?.toString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          )}
         </table>
       </div>
     </div>
