@@ -1,40 +1,57 @@
-import React, { useState } from "react";
-import './App.css';
-
-const listTransaction = [
-  {
-    dados: "2019-01-01 12:00:00+03",
-    valencia: "30895.46",
-    tipo: "DEPOSITO",
-    operador: null,
-  },
-  {
-    dados: "2019-02-03 09:53:27+03",
-    valencia: "12.24",
-    tipo: "DEPOSITO",
-    operador: null,
-  },
-  {
-    dados: "2019-05-04 08:12:45+03",
-    valencia: "-500.50",
-    tipo: "SAQUE",
-    operador: "Fulano",
-  },
-];
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("pt-BR");
-}
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import { API } from "./services/api";
 
 function App() {
-  const [searchValues, setSearchValues] = useState({});
+  const [transactionList, setTransactionList] = useState([]);
+  const [searchValues, setSearchValues] = useState({
+    dateMin: "",
+    endDate: "",
+    operator: "",
+  });
 
-  const handleInputChange = (event) => {
-    setSearchValues({
-      ...searchValues,
-      [event.target.name]: event.target.value,
-    });
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-BR");
+  };
+
+  const handleInputChange = ({ target: { name, value } }) => {
+    setSearchValues((prevSearchValues) => ({
+      ...prevSearchValues,
+      [name]: value,
+    }));
+  };
+
+  useEffect(() => {
+    const listAllTransactions = async () => {
+      try {
+        const response = await API.get("/transfers");
+        setTransactionList(response.data);
+      } catch (error) {
+        console.log("Error fetching transaction data:", error);
+      }
+    };
+    listAllTransactions();
+  }, []);
+
+  const handleSearchClick = async () => {
+    try {
+      const { dateMin, endDate, operator } = searchValues;
+
+      const formattedDateMin = dateMin ? formatDate(dateMin) : "";
+      const formattedEndDate = endDate ? formatDate(endDate) : "";
+
+      const params = {
+        operator: operator,
+        dateMin: formattedDateMin,
+        dateMax: formattedEndDate,
+      };
+
+      const response = await API.get("/transfers", { params });
+      setTransactionList(response.data);
+    } catch (error) {
+      console.log("Error searching for transactions:", error);
+    }
   };
 
   return (
@@ -44,7 +61,7 @@ function App() {
           Data de início:
           <input
             type="date"
-            name="startDate"
+            name="dateMin"
             onChange={handleInputChange}
             className="search-input"
           />
@@ -53,7 +70,7 @@ function App() {
           Data de fim:
           <input
             type="date"
-            name="endDate"
+            name="dateMax"
             onChange={handleInputChange}
             className="search-input"
           />
@@ -62,14 +79,16 @@ function App() {
           Nome do operador transacionado:
           <input
             type="text"
-            name="operatorName"
+            name="operator"
             onChange={handleInputChange}
             className="search-input"
           />
         </label>
       </div>
       <div>
-        <button className="search-button">Pesquisar</button>
+        <button className="search-button" onClick={handleSearchClick}>
+          Pesquisar
+        </button>
       </div>
       <div>
         <div className="container-balance">
@@ -86,13 +105,13 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {listTransaction.map((transaction, index) => (
+            {transactionList.map((transaction, index) => (
               <tr key={index}>
-                <td className="table-data">{formatDate(transaction.dados)}</td>
-                <td className="table-data">R$ {transaction.valencia}</td>
-                <td className="table-data">{transaction.tipo}</td>
+                <td className="table-data">{formatDate(transaction.dateAt)}</td>
+                <td className="table-data">R$ {transaction.value}</td>
+                <td className="table-data">{transaction.accountType}</td>
                 <td className="table-data">
-                  {transaction.operador ? transaction.operador : ""}
+                  {transaction.operator?.toString()}
                 </td>
               </tr>
             ))}
